@@ -1,102 +1,36 @@
 //
-//  PersonalCenterViewController.swift
+//  ShowPhotoViewController.swift
 //  PersonalCenter
 //
-//  Created by mjt on 15/11/29.
-//  Copyright © 2015年 mjt. All rights reserved.
+//  Created by mjt on 16/1/4.
+//  Copyright © 2016年 mjt. All rights reserved.
 //
 
 import UIKit
 
-class PersonalCenterViewController: UIViewController {
+class ShowPhotoViewController: UIViewController {
     
-    var bgScrollView: UIScrollView!
-    var personalCenterView: UIView!
     var photoScrollVeiw: UIScrollView!
     var addPhotoImgView: UIImageView!
-    
-    let navBarHeight: CGFloat = 0.0
+    let TopHeight: CGFloat = 20
     var photoIndex:Int = 0
     var cellImgViewWidth: CGFloat!
     var cellImgViewHeight: CGFloat!
-    
-    lazy var imageArray: [String] = {
-        var array: [String] = []
-        for i in 0...9 {
-            array.append("wallPaper\(i)")
-        }
-        return array
-    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "个人空间"
-        navigationController?.navigationBarHidden = true
-        
-        initBackground()
-        initBgScrollView()
-        initPersonalCenterView()
-    }
-    
-    func initBackground() {
-        let bgImgView = UIImageView()
-        bgImgView.frame = self.view.frame
-        bgImgView.image = UIImage.scaleImage(UIImage(named: "wallPaper1")!, scale: view.bounds.size)
-        self.view.addSubview(bgImgView)
-    }
-    
-    func initBgScrollView() {
-        bgScrollView = UIScrollView()
-        bgScrollView.frame = view.bounds
-        bgScrollView.contentSize = CGSize(width: bgScrollView.bounds.width, height: (bgScrollView.bounds.height) * 2 - navBarHeight - 200)
-        // 取消到达边界回弹的效果
-        bgScrollView.bounces = false
-        bgScrollView.delegate = self
-        bgScrollView.showsVerticalScrollIndicator = false
-        self.view.addSubview(bgScrollView)
-    }
-    
-    // MARK: - PersonalCenter View
 
-    func initPersonalCenterView() {
-        personalCenterView = UIView()
-        personalCenterView.frame = CGRectMake(0, bgScrollView.frame.height - navBarHeight - 200, bgScrollView.bounds.width, bgScrollView.bounds.height)
-        personalCenterView.backgroundColor = UIColor.whiteColor()
-        personalCenterView.alpha = 0.9
-        bgScrollView.addSubview(personalCenterView)
-        
-//        self.creatPhotoScrollView()
-        
-        // TODO: - AvatarView
-        let avatarViewHeight: CGFloat = 120
-        let avatarView = AvatarView(frame: CGRectMake(0, -avatarViewHeight, personalCenterView.frame.width, avatarViewHeight))
-        avatarView.nickName = "慢镜头"
-        avatarView.gender = "女"
-        avatarView.location = "上海, 闵行"
-        personalCenterView.addSubview(avatarView)
-        
-        // TODO: - ShowPhotoView
-        let showPhotoView = ShowPhotoView(target: self, imageArray: imageArray, frame: CGRectMake(0, 0, self.view.bounds.width, 200), collectionViewLayout: LineLayout())
-        personalCenterView.addSubview(showPhotoView)
-        
-        // TODO: - UserDetailInfoView
-        let identifier = "UserDetailInfoTableViewController"
-        let userDetailInfoTableViewController = UIStoryboard.userDetailInfoStoryboard
-            .instantiateViewControllerWithIdentifier(identifier)
-        let userDetailInfoView = userDetailInfoTableViewController.view
-        userDetailInfoView.frame = CGRectMake(0, showPhotoView.frame.maxY + 30, personalCenterView.bounds.width, 200)
-        personalCenterView.addSubview(userDetailInfoView)
+        creatPhotoScrollView()
     }
-    
+
     func creatPhotoScrollView() {
         photoScrollVeiw = UIScrollView()
         let photoScrollViewHeight: CGFloat = 200
         photoScrollVeiw.bounces = false
-        photoScrollVeiw.frame = CGRectMake(0, 0, personalCenterView.bounds.width, photoScrollViewHeight)
-        photoScrollVeiw.contentSize = CGSize(width: personalCenterView.bounds.width * 3, height: photoScrollViewHeight)
+        photoScrollVeiw.frame = CGRectMake(0, 0, view.bounds.width, photoScrollViewHeight)
+        photoScrollVeiw.contentSize = CGSize(width: view.bounds.width * 3, height: photoScrollViewHeight)
         photoScrollVeiw.backgroundColor = UIColor.lightGrayColor()
-        personalCenterView.addSubview(photoScrollVeiw)
-        
+        view.addSubview(photoScrollVeiw)
         // 添加图片按钮
         cellImgViewWidth = photoScrollViewHeight
         cellImgViewHeight = photoScrollViewHeight
@@ -107,30 +41,30 @@ class PersonalCenterViewController: UIViewController {
         addPhotoImgView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "addPhoto"))
         photoScrollVeiw.addSubview(addPhotoImgView)
     }
-
+    
     func addPhoto() {
         // 初始化UIImagePickerController
         let imgPicker = UIImagePickerController()
         imgPicker.delegate = self
         imgPicker.allowsEditing = true
-        let alert = UIAlertController(title: "添加照片", message: "", preferredStyle: .ActionSheet)
-        let photographAction = UIAlertAction(title: "拍 照", style: .Default) { (_) -> Void in
+        let alert = UIAlertController(title: "添加照片", message: "", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        let photographAction = UIAlertAction(title: "拍 照", style: UIAlertActionStyle.Default) { (_) -> Void in
             //判断是否获得相机
-            guard ((UIImagePickerController.availableMediaTypesForSourceType(.Camera)) == nil) else {
-                imgPicker.sourceType = .Camera
+            guard ((UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.Camera)) != nil) else {
+                imgPicker.sourceType = UIImagePickerControllerSourceType.Camera
                 self.presentViewController(imgPicker, animated: true, completion: nil)
                 return
             }
         }
-        let albumAction = UIAlertAction(title: "相 册", style: .Default) { (_) -> Void in
+        let albumAction = UIAlertAction(title: "相 册", style: UIAlertActionStyle.Default) { (_) -> Void in
             //判断是否获得相册
-            guard ((UIImagePickerController.availableMediaTypesForSourceType(.PhotoLibrary)) == nil) else {
-                imgPicker.sourceType = .PhotoLibrary
+            if ((UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.PhotoLibrary)) != nil) {
+                imgPicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
                 self.presentViewController(imgPicker, animated: true, completion: nil)
-                return
+                
             }
         }
-        let cancelAcrion = UIAlertAction(title: "取 消", style: .Cancel, handler: nil)
+        let cancelAcrion = UIAlertAction(title: "取 消", style: UIAlertActionStyle.Cancel, handler: nil)
         alert.addAction(photographAction)
         alert.addAction(albumAction)
         alert.addAction(cancelAcrion)
@@ -202,31 +136,16 @@ class PersonalCenterViewController: UIViewController {
         UIGraphicsEndImageContext()
         return newImage
     }
-
-}
-
-extension PersonalCenterViewController: UIScrollViewDelegate {
-    func scrollViewDidScroll(scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let borderY: CGFloat = scrollView.contentSize.height - bgScrollView.bounds.height
-        if offsetY > 0 {
-            let alpha = min(1, (offsetY) / (borderY))
-            //NavBar透明度渐变
-            navigationController!.navigationBar.alpha = alpha
-        } else {
-            UIView.transitionWithView((navigationController?.navigationBar)!,
-                duration: 0.33,
-                options: [],
-                animations: { () -> Void in
-                    self.navigationController?.navigationBar.alpha = 0.0
-                }, completion: nil)
-        }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
     }
+
 }
 
 // MARK: - ImagePicker Delegate
 
-extension PersonalCenterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ShowPhotoViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         let dic = info as NSDictionary
