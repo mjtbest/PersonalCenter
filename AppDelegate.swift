@@ -17,6 +17,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UINavigationBar.setupStyle()
         
+        let appKey: String = "d30ba419fe00"
+        ShareSDK.registerApp(
+            appKey,
+            activePlatforms: [],
+            onImport: { (platformType: SSDKPlatformType) -> Void in
+                switch platformType {
+                case .TypeWechat:
+                    ShareSDKConnector.connectWeChat(WeiChatViewController.self)
+                    break
+                default:
+                    break
+                }
+            }, onConfiguration: nil)
         return true
     }
 
